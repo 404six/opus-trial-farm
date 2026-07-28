@@ -1,5 +1,3 @@
-import time
-
 from config import META_CHAVES, OUTPUT_FILE
 from opus_farm.automation import create_account
 from opus_farm.email.darkemail import DarkEmailProvider
@@ -16,7 +14,6 @@ def main():
                 f.write(result + "\n")
                 f.flush()
                 n += 1
-            time.sleep(3)
     print(f"\n[+] {n} chaves salvas em {OUTPUT_FILE}")
 
 

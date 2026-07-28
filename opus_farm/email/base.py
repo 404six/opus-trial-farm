@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Callable, Optional
 
 
 class EmailProvider(ABC):
@@ -10,5 +10,15 @@ class EmailProvider(ABC):
         """Return a fresh, valid email address."""
 
     @abstractmethod
-    def get_otp(self, email: str, tries: int = 30) -> Optional[str]:
-        """Poll the inbox for a 6-digit OTP; return None on timeout."""
+    def get_otp(
+        self,
+        email: str,
+        tries: int = 60,
+        on_stalled: Optional[Callable[[], None]] = None,
+    ) -> Optional[str]:
+        """Poll the inbox for a 6-digit OTP.
+
+        If ``on_stalled`` is provided, it is invoked once, halfway through the
+        polling window, if no OTP has been received yet. Concrete providers may
+        use it to signal the caller (e.g. click a Resend button).
+        """

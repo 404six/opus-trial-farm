@@ -28,6 +28,11 @@ def build_driver(proxy_port):
             "--blink-settings=imagesEnabled=false",
             "--disable-background-networking",
             "--disable-features=Translate,MediaRouter,OptimizationHints",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-extensions",
+            "--disable-sync",
+            "--disable-default-apps",
         ],
     )
     driver.execute_cdp_cmd("Network.enable", {})

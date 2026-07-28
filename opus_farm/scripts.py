@@ -43,18 +43,3 @@ JS_INTERCEPT = r"""
 })();
 """
 
-JS_CREATE_KEY = """
-const done = arguments[arguments.length - 1];
-const [token, orgId, userId] = arguments;
-const h = {
-    'authorization': 'Bearer ' + token,
-    'content-type': 'application/json',
-    'x-opus-org-id': orgId,
-    'x-opus-user-id': userId,
-    'x-opus-device-platform': 'web'
-};
-Promise.all([
-    fetch('https://api.opus.pro/api/api-keys', {method: 'POST', headers: h, body: JSON.stringify({orgId})}).then(r => r.json()),
-    fetch('https://api.opus.pro/api/org-credits?q=mine', {headers: h}).then(r => r.json())
-]).then(([k, c]) => done({key: k, credits: c})).catch(e => done({error: e.message}));
-"""

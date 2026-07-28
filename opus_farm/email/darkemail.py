@@ -1,7 +1,7 @@
 import re
 import secrets
 import time
-from typing import Optional
+from typing import Callable, Optional
 
 import requests
 
@@ -18,8 +18,20 @@ class DarkEmailProvider(EmailProvider):
     def generate(self) -> str:
         return f"user-{secrets.token_hex(4)}-{secrets.token_hex(4)}@darkemail.school"
 
-    def get_otp(self, email: str, tries: int = 30) -> Optional[str]:
-        for _ in range(tries):
+    def get_otp(
+        self,
+        email: str,
+        timeout: int = 60,
+        on_stalled: Optional[Callable[[], bool]] = None,
+    ) -> Optional[str]:
+        start = time.time()
+        check_at = 15
+        checked = False
+
+        while True:
+            elapsed = time.time() - start
+            if elapsed >= timeout:
+                return None
             try:
                 r = requests.get(self.API, params={"to": email}, headers=self.HEADERS, timeout=10)
                 emails = r.json().get("emails", [])
@@ -29,5 +41,11 @@ class DarkEmailProvider(EmailProvider):
                         return m.group()
             except Exception:
                 pass
-            time.sleep(2)
-        return None
+            if on_stalled and not checked and elapsed >= check_at:
+                checked = True
+                try:
+                    if not on_stalled():
+                        timeout = min(timeout, elapsed + 15)
+                except Exception:
+                    pass
+            time.sleep(1)
